@@ -33,25 +33,13 @@ print(naValues)
 db['Electrical'] = db['Electrical'].fillna(value='SBrkr')
 db['MasVnrType'] = db['MasVnrType'].fillna(value='None')
 db['MasVnrArea'] = db['MasVnrArea'].fillna(0)
-db['BsmtQual'] = db['BsmtQual'].fillna('NA')
-db['BsmtCond'] = db['BsmtCond'].fillna('NA')
-db['BsmtFinType1'] = db['BsmtFinType1'].fillna('NA')
-db['BsmtExposure'] = db['BsmtExposure'].fillna('NA')
-db['BsmtFinType2'] = db['BsmtFinType2'].fillna('NA')
-db['GarageType'] = db['GarageType'].fillna('NA')
-db['GarageYrBlt'] = db['GarageYrBlt'].fillna('NA')
-db['GarageFinish'] = db['GarageFinish'].fillna('NA')
-db['GarageQual'] = db['GarageQual'].fillna('NA')
-db['GarageCond'] = db['GarageCond'].fillna('NA')
-db['FireplaceQu'] = db['FireplaceQu'].fillna('NA')
-db['Fence'] = db['Fence'].fillna('NA')
-db['Alley'] = db['Alley'].fillna('NA')
-db['MiscFeature'] = db['MiscFeature'].fillna('NA')
-db['PoolQC'] = db['PoolQC'].fillna('NA')
+cols = ['BsmtQual','BsmtCond','BsmtFinType1','BsmtExposure','BsmtFinType2','GarageType','GarageYrBlt','GarageFinish','GarageQual','GarageCond','FireplaceQu','Fence','Alley','MiscFeature','PoolQC']
+for c in cols:
+    db[c] = db[c].fillna('NA')
 
 sumLF = db['LotFrontage'].sum()
 naValuesLF = db['LotFrontage'].isnull().sum()
-mean = sumLF / (len(db.index) - naValuesLF) 
+mean = sumLF / (len(db.index) - naValuesLF)
 db['LotFrontage'] = db['LotFrontage'].fillna(round(mean,1))
 
 #check to ensure there are no more missing values remaining
@@ -61,14 +49,9 @@ naValues = naValues.drop(naValues[naValues==0].index).sort_values(ascending=Fals
 print(naValues)
 
 #some values must be converted into strings, so that they will be proportional when converted back using our label encoder
-
-db['YrSold'] = db['YrSold'].astype(str)
-db['MoSold'] = db['MoSold'].astype(str)
-db['MSSubClass'] = db['MSSubClass'].astype(str)
-db['OverallCond'] = db['OverallCond'].astype(str)
-db['OverallQual'] = db['OverallQual'].astype(str)
-db['GarageYrBlt'] = db['GarageYrBlt'].astype(str)
-
+cols = ['YrSold','MoSold','MSSubClass','OverallCond','OverallQual','GarageYrBlt']
+for c in cols:
+    db[c] = db[c].astype(str)
 #generate and fit the label encoder
 
 columns = ('MoSold', 'MSSubClass', 'OverallCond', 'OverallQual', 'Street', 'Alley', 'MSZoning', 'BsmtQual', 'BsmtCond', 'LotShape', 'LandContour', 'Utilities', 'LotConfig', 'LandSlope', 'Neighborhood', 'Condition1', 'Condition2', 'BldgType', 'HouseStyle', 'RoofStyle', 'RoofMatl', 'Exterior1st', 'Exterior2nd', 'MasVnrType', 'ExterQual', 'ExterCond', 'Foundation', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2', 'Heating', 'HeatingQC', 'CentralAir', 'Electrical', 'KitchenQual', 'Functional', 'FireplaceQu', 'GarageType', 'GarageFinish', 'GarageQual', 'GarageCond', 'PavedDrive', 'PoolQC', 'Fence', 'MiscFeature', 'SaleType', 'SaleCondition', 'GarageYrBlt', 'YrSold')
@@ -76,7 +59,7 @@ for c in columns:
     encoder = LabelEncoder()
     encoder.fit(list(db[c].values))
     db[c] = encoder.transform(list(db[c].values))
-    
+
 #transform the data to be ready for our split into train and test sets
 
 db = db.drop(['Id'], axis=1)
@@ -124,6 +107,3 @@ bayesian = linear_model.BayesianRidge()
 modelBayesian = bayesian.fit(X_train, Y_train)
 y_predictionsBayesian = modelBayesian.predict(X_test)
 print("r2 score: {}".format(r2_score(y_predictionsBayesian, Y_test)))
-
-
-	
